@@ -15,5 +15,6 @@ int main(){
   //for (int i = 0; i < std::stoi(numCommands); i++) {
    // tree.insert("Brandon", "00000000");
   //}
+  cout << "Kind of working!" << " \n";
   return 0;
 }

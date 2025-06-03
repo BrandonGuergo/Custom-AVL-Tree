@@ -5,21 +5,25 @@
 #include <cctype>
 #include <queue>
 #include <stack>
+#include <cmath>
+using namespace std;
 
 //PRIVATE
-bool AVL::insertHelper(Node* root, std::string name, std::string ufid){
-    return true;
+bool AVL::insertHelper(Node* root, std::string name, int ufid){
+  //first order of business: check regex
+
+  return true;
 }
 
-void AVL::remove_IDHelper(Node* root, std::string ufid){
+void AVL::remove_IDHelper(Node* root, int ufid){
 
 }
 
-void AVL::search_IDHelper(Node* root, std::string ufid){
+void AVL::search_IDHelper(Node* root, int ufid){
 
 }
 
-void AVL::search_nameHelper(Node* root, std::string name){
+void AVL::search_nameHelper(Node* root, int name){
 
 }
 
@@ -51,18 +55,55 @@ void AVL::LevelCount(Node* root)
 void AVL::removeInorderHelper(Node* root, int n){
 
 }
+//DONE
+AVL::Node* AVL::rotateLeft(Node* node){
+  Node* grandchild = node->right->left;
+  Node* newParent = node->right;
+  newParent->left = node;
+  node->right = grandchild;
+  return newParent;
+}
+//DONE
+AVL::Node* AVL::rotateRight(Node* node){
+  Node* grandchild = node->left->right;
+  Node* newParent = node->left;
+  newParent->right = node;
+  node->left = grandchild;
+  return newParent;
+}
+//DONE
+AVL::Node* AVL::rotateLeftRight(Node* node){
+  node->left = rotateLeft(node->left);
+  return rotateRight(node);
+}
+//DONE
+AVL::Node* AVL::rotateRightLeft(Node* node){
+  node->right = rotateRight(node->right);
+  return rotateLeft(node);
+}
 
+int AVL::height(Node* root) {
+  //base case
+  if(!root) {
+    return -1;
+  }
+  int leftHeight = height(root->left);
+  int rightHeight = height(root->right);
+
+  return max(leftHeight, rightHeight) + 1;
+}
 
 //PUBLIC  
-bool AVL::insert(std::string name, std::string ufid){
+bool AVL::insert(std::string name, int ufid){
+  AVL::insertHelper(root, name, ufid);
   return false;
 }
 
-void AVL::remove_ID( std::string ufid){
+bool AVL::remove_ID(int ufid){
 
 }
 
-void AVL::search_ID(std::string ufid){
+void AVL::search_ID(int ufid){
 
 }
 

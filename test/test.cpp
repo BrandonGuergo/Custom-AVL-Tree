@@ -21,6 +21,10 @@ TEST_CASE("Five Incorrect Commands", "[commands]"){
 TEST_CASE("Rotation Test", "[rotations]"){
 	// you can also use "sections" to share setup code between tests, for example:
 	AVL tree;
+  REQUIRE(tree.insert("Ally", "12345678"));
+  REQUIRE(tree.insert("Brandon", "13345678"));
+  REQUIRE(tree.insert("Chris", "14235689"));
+  REQUIRE(tree.insert("Dan", "15234678"));
 
 
 	//SECTION("num is 3") {
@@ -35,14 +39,21 @@ TEST_CASE("Insert 100 Nodes", "[100 nodes]"){
 	// Five incorrect commands
     AVL tree;
     vector<string> vec;
+    bool added = false;
+    int count = 0;
+
     for(int i = 10000000; i < 10000100; i++) {
-      tree.insert("NAME", std::to_string(i));
+      added = tree.insert("NAME", std::to_string(i));
       vec.push_back(std::to_string(i));
+      if(added) {
+        count++;
+      }
     }
     for(int i = 0; i < 10; i *= 2) {
-      tree.remove_ID(vec[i]);
+      added = tree.remove_ID(vec[i]);
       vec.erase(find(vec.begin(), vec.end(), vec[i]));
     }
+    
 }
 
 
