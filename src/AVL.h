@@ -29,20 +29,27 @@ class AVL {
     Node* insert_Helper(Node* root, std::string name, std::string ufid, bool& attempt); 
     //no need to balance, print successful/unsuccessful, replace node with inorder successor
     //if the deleted node has two children
-    void remove_ID_Helper(Node* root, std::string ufid);
+    Node* remove_ID_Helper(Node* root, std::string ufid, bool& attempt);
     //if ID found, print name, if not print unsuccessful
-    void search_ID_Helper(Node* root, std::string ufid);
+    void search_ID_Helper(Node* root, std::string ufid, bool& found);
     //if found print ID, if multiple names: print IDs on new lines with no spaces in the same
     //relative order as preorder traversal, if not found print unsuccessful, double quotes ""
-    void search_Name_Helper(Node* root, std::string name);
+    void search_Name_Helper(Node* root, std::string name, bool& found);
     //traverse inorder
     void traverseInorder(Node* root, std::vector<std::string>& names);
+    
+    void traverseInorderUFID(Node* root, std::vector<std::string>& names);
+    
     //print comma separated inorder traversal of names
-    void printInorder_Helper(Node* root);
+    std::vector<std::string> printInorder_Helper(Node* root);
+    //print inorder helper for testing
+    std::vector<std::string> printInorder_UFID_Helper(Node* root);
     //traverse preoder
-    void traversePreorder(Node* roo, std::vector<std::string>& names);
+    void traversePreorder(Node* root, std::vector<std::string>& names);
     //print preorder comma separated traversal of names
-    void printPreorder_Helper(Node* root);
+    std::vector<std::string> printPreorder_Helper(Node* root);
+    //traverse postorder
+    void traversePostorder(Node* root, std::vector<std::string>& names);
     //print comma seaprated postorder traversal of names
     void printPostorder_Helper(Node* root);
     //print number of levels that exist in tree
@@ -60,6 +67,10 @@ class AVL {
     Node* rotateRightLeft(Node* node);
 
     int height(Node* root);
+
+    Node* successor_Helper(Node* node);
+
+    void search_ID_Insertion_Helper(Node* root, std::string ufid, bool& found);
     
   public:
 
@@ -72,13 +83,15 @@ class AVL {
 
     bool remove_ID(std::string ufid);
 
-    void search_ID(std::string ufid);
+    bool search_ID(std::string ufid);
 
-    void search_Name(std::string name);
+    bool search_Name(std::string name);
 
-    void printInorder();
+    std::vector<std::string> printInorder();
 
-    void printPreorder();
+    std::vector<std::string> printInorder_UFID();
+
+    std::vector<std::string> printPreorder();
 
     void printPostorder();
 

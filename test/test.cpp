@@ -1,3 +1,5 @@
+// BRANDON GUERGO ; UFID: 3092-7636
+
 #define CATCH_CONFIG_MAIN
 #include "catch_amalgamated.hpp"
 #include <iostream>
@@ -8,88 +10,84 @@ using namespace std;
 
 TEST_CASE("Five Incorrect Commands", "[commands]"){
 	// Five incorrect commands
-    AVL tree;
-    CHECK(tree.insert("A F D F D", 123) == false);
-	  CHECK(tree.insert("A11y", -1) == false);
-    CHECK(tree.insert("Ally", 12345678) == true);
-    CHECK(tree.insert("!", 12346688) == false);
-    CHECK(tree.insert("", 12 ) == false);
-    CHECK(tree.insert(" ", 12) == false);
+  AVL tree;
+  CHECK(tree.insert("Ally", "12345678") == true);
+  CHECK(tree.insert("Brandon", "22222222") == true);
+  CHECK(tree.insert("Chris", "33333333") == true);
+  CHECK(tree.insert("Ally", "87654321") == true);
+  CHECK(tree.insert("Brandon", "22222222") == false);
+  CHECK(tree.insert("A!", "123") == false);
+  CHECK(tree.insert("AFN2   ", "12345678") == false);
+  CHECK(tree.insert(" ___", " 9X") == false);
+  CHECK(tree.insert("", "") == false);
 
 }
 
-TEST_CASE("Rotation Test", "[rotations]"){
-	// you can also use "sections" to share setup code between tests, for example:
-	AVL tree;
-  tree.insert("Ally", 12345678);
-  tree.insert("Brandon", 13345678);
-  tree.insert("Chris", 14235689);
-  tree.insert("Dan", 15234678);
-  tree.insert("Evan", 16234578);
-  tree.insert("Fred", 17234567);
-  //left rotations
-  tree.printPostorder();
+TEST_CASE("Right Rotation", "[rotation]"){
+  AVL tree;
+  tree.insert("C", "33333333");
+  tree.insert("B", "22222222");
+  tree.insert("A", "11111111");
+  std::vector<string> actualOutput = tree.printPreorder();
+  std::vector<string> expectedOutput = {"A", "B", "C"};
+  REQUIRE(expectedOutput.size() == actualOutput.size());
+  REQUIRE(actualOutput == expectedOutput);
+}
 
-  AVL tree2;
-  tree.insert("Fred", 17234567);
-  tree.insert("Evan", 16234578);
-  tree.insert("Dan", 15234678);
-  tree.insert("Chris", 14235689);
-  tree.insert("Brandon", 13345678);
-  tree.insert("Ally", 12345678);
-  //right rotations
-  tree2.printPostorder();
+//Left Rotation
+TEST_CASE("Left Rotation", "[rotation]"){
+  AVL tree; 
+  tree.insert("A", "11111111");
+  tree.insert("B", "22222222");
+  tree.insert("C", "33333333");
+  std::vector<string> actualOutput = tree.printPreorder();
+  std::vector<string> expectedOutput = {"A", "B", "C"};
+  REQUIRE(expectedOutput.size() == actualOutput.size());
+  REQUIRE(actualOutput == expectedOutput);
+}
 
-  AVL tree3;
-  tree.insert("Ally", 12345678);
-  tree.insert("Chris", 14235689);
-  tree.insert("Brandon", 13345678);
-  //right-left rotation
-  tree3.printPostorder();
+//Left-Right Rotation
+TEST_CASE("Left-Right Rotation", "[rotation]"){
+  AVL tree; 
+  tree.insert("C", "33333333");
+  tree.insert("A", "11111111");
+  tree.insert("B", "22222222");
+  std::vector<string> actualOutput = tree.printPreorder();
+  std::vector<string> expectedOutput = {"A", "B", "C"};
+  REQUIRE(expectedOutput.size() == actualOutput.size());
+  REQUIRE(actualOutput == expectedOutput);
+}
 
-  AVL tree4;
-  tree.insert("Chris", 14235689);
-  tree.insert("Ally", 12345678);
-  tree.insert("Brandon", 13345678);
-  //left-right rotation
-  tree.printPostorder();
+//Right-Left Rotation
+TEST_CASE("Right-Left Rotation", "[rotation]"){
+  AVL tree; 
+  tree.insert("A", "11111111");
+  tree.insert("C", "33333333");
+  tree.insert("B", "22222222");
+  std::vector<string> actualOutput = tree.printPreorder();
+  std::vector<string> expectedOutput = {"A", "B", "C"};
+  REQUIRE(expectedOutput.size() == actualOutput.size());
+  REQUIRE(actualOutput == expectedOutput);
+}
 
-	// each section runs the setup code independently to ensure that they don't affect each other
-} 
-
-//TEST_CASE("Insert 100 Nodes", "[100 nodes]"){
-//	// Five incorrect commands
-//    AVL tree;
-//    vector<string> vec;
-//    bool added = false;
-//    int count = 0;
-//
-//    for(int i = 10000000; i < 10000100; i++) {
-//      added = tree.insert("NAME", std::to_string(i));
-//      vec.push_back(std::to_string(i));
-//      if(added) {
-//        count++;
-//      }
-//    }
-//    for(int i = 0; i < 10; i *= 2) {
-//      added = tree.remove_ID(vec[i]);
-//      vec.erase(find(vec.begin(), vec.end(), vec[i]));
-//    }
-//    
-//}
-
-
-
-
-//TEST_CASE("Example BST Insert", "[flag]"){
-	/*
-		MyAVLTree tree;   // Create a Tree object
-		tree.insert(3);
-		tree.insert(2);
-		tree.insert(1);
-		std::vector<int> actualOutput = tree.inorder();
-		std::vector<int> expectedOutput = {1, 2, 3};
-		REQUIRE(expectedOutput.size() == actualOutput.size());
-		REQUIRE(actualOutput == expectedOutput);
-	*/
-//}
+TEST_CASE("100 Nodes", "[100 node test]"){
+  AVL tree; 
+  std::string str_number;
+  std::vector<string> expectedOutput;
+  for(int i = 10000000; i < 10000100; i++) {
+    str_number = std::to_string(i);
+    tree.insert(" ", str_number);
+    expectedOutput.push_back(str_number);
+  }
+  std::vector<string> actualOutput = tree.printInorder_UFID();
+  REQUIRE(expectedOutput.size() == actualOutput.size());
+  REQUIRE(actualOutput == expectedOutput);
+  for(int i = 0; i < 10; i++) {
+    str_number = expectedOutput.back();
+    tree.remove_ID(expectedOutput.back());
+    expectedOutput.pop_back();
+  }
+  actualOutput = tree.printInorder_UFID();
+  REQUIRE(expectedOutput.size() == actualOutput.size());
+  REQUIRE(actualOutput == expectedOutput);
+}

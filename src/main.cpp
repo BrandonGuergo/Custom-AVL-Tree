@@ -1,4 +1,5 @@
 #include "AVL.h"
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -44,18 +45,26 @@ int main(void){
     }
     else if (command == "search") {
       //Search by ID
-      if (isdigit(iss.peek())) {
-        string ufid;
-        iss >> ufid;
-        tree.search_ID(ufid);
-      }
+      bool found = false;
+      string name;
+      string ufid;
+      iss >> ws;
       //Search by name
-      else if (iss.peek() == '"') {
+      if (iss.peek() == '"') {
         iss.get();
-        string name;
         getline(iss, name, '"');
-        tree.search_Name(name);
+        found = tree.search_Name(name);
       } 
+      else {
+        iss >> ufid;
+        ufid.erase(remove_if(ufid.begin(), ufid.end(), ::isspace), ufid.end());
+        if(!ufid.empty() && all_of(ufid.begin(), ufid.end(), ::isdigit)) {
+        found = tree.search_ID(ufid);
+        }
+      }
+      if(!found) {
+          cout << "unsuccessful" << endl;
+      }
     }
     else if (command == "printInorder") {
       tree.printInorder();
