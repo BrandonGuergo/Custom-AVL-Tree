@@ -11,8 +11,6 @@ using namespace std;
 
 
 //PRIVATE
-//MAIN FUNCTIONS AND HELPERS
-//DONE
 AVL::Node* AVL::insert_Helper(Node* root, std::string name, std::string ufid, bool& attempt){
   //First, check string name against regex
   regex name_regex("^[A-Za-z ]+$");
@@ -44,38 +42,94 @@ AVL::Node* AVL::insert_Helper(Node* root, std::string name, std::string ufid, bo
   if (root == nullptr) {
     cout << "successful" << "\n";
     attempt = true;
+    AVL::nodeCount++;
     root = new Node(name, ufid);
     return root;
   }
   //Insert accordingly based on UFID integer value
-  while(true) {
-    if(temp->ufid < ufid) {
-      if(temp->right == nullptr) {
-        Node* newNode = new Node(name, ufid);
-        temp->right = newNode;
-        attempt = true;
-        break;
-      }
-      temp = temp->right;
-    }
-    else if(temp->ufid > ufid) {
-      if(temp->left == nullptr) {
-        Node* newNode = new Node(name, ufid);
-        temp->left = newNode;
-        attempt = true;
-        break;
-      }
-      temp = temp->left;
-    }
-  }
+  root = insert_Recursively(root, name, ufid);
   cout << "successful" << "\n";
+  attempt = true;
   return root;
 }
-//DONE
+
+AVL::Node* AVL::insert_Recursively(Node* node, std::string name, std::string ufid) {
+  if(!node) {
+    AVL::nodeCount++;
+    return new Node(name, ufid);
+  }
+
+  if(ufid < node->ufid) {
+    node->left = insert_Recursively(node->left, name, ufid);
+  }
+  else {
+    node->right = insert_Recursively(node->right, name, ufid);
+  }
+
+  node->height = 1 + max(height(node->left), height(node->right));
+  return balance(node);
+}
+
+AVL::Node* AVL::rotateLeft(Node* node){
+  Node* grandchild = node->right->left;
+  Node* newParent = node->right;
+  newParent->left = node;
+  node->right = grandchild;
+
+  node->height = 1 + max(height(node->left), height(node->right));
+  newParent->height = 1 + max(height(newParent->left), height(newParent->right));
+  return newParent;
+}
+
+AVL::Node* AVL::rotateRight(Node* node){
+  Node* grandchild = node->left->right;
+  Node* newParent = node->left;
+  newParent->right = node;
+  node->left = grandchild;
+
+  node->height = 1 + max(height(node->left), height(node->right));
+  newParent->height = 1 + max(height(newParent->left), height(newParent->right));
+  return newParent;
+}
+
+AVL::Node* AVL::balance(Node* node) {
+  int bal = getBalance(node);
+  if(bal > 1) {
+    if(getBalance(node->left) < 0) {
+      node->left = rotateLeft(node->left);
+    }
+    return rotateRight(node);
+  }
+
+  if (bal < -1) {
+    if(getBalance(node->right) > 0) {
+      node->right = rotateRight(node->right);
+    }
+    return rotateLeft(node);
+  }
+  return node;
+}
+
+int AVL::getBalance(Node* node) {
+  if(!node) {
+    return 0;
+  }
+  int leftHeight = node->left ? node->left->height : 0;
+  int rightHeight = node->right ? node->right->height : 0;
+  int balance = leftHeight - rightHeight;
+  return balance;
+}
+
+int AVL::height(Node* node) { 
+  if (!node) {
+    return 0;
+  }
+  return node->height;
+}
+
 AVL::Node* AVL::remove_ID_Helper(Node* root, std::string ufid, bool& attempt){
   if (!root) {
     attempt = false;
-    cout << "unsuccessful" << endl;
     return root;
   }
   
@@ -86,29 +140,41 @@ AVL::Node* AVL::remove_ID_Helper(Node* root, std::string ufid, bool& attempt){
     root->right = remove_ID_Helper(root->right, ufid, attempt);
   }
   else {
-    if (root->left == nullptr) {
+    if (root->left == nullptr && root->right == nullptr) {
+      delete root;
+      attempt = true;
+      AVL::nodeCount--;
+      return nullptr;
+    }
+    else if (root->left == nullptr) {
       Node* temp = root->right;
       delete root;
       attempt = true;
-      cout << "successful" << endl;
+      AVL::nodeCount--;
       return temp;
     }
 
-    if (root->right == nullptr) {
+    else if (root->right == nullptr) {
       Node* temp = root->left;
       delete root;
       attempt = true;
-      cout << "successful" << endl;
+      AVL::nodeCount--;
       return temp;
     }
 
-    Node* successor = successor_Helper(root);
-    root->ufid = successor->ufid;
-    root->right = remove_ID_Helper(root->right, successor->ufid, attempt);
+    else {
+      Node* successor = successor_Helper(root->right);
+      root->ufid = successor->ufid;
+      root->name = successor->name;
+      bool successorRemoved = true;
+      root->right = remove_ID_Helper(root->right, successor->ufid, successorRemoved);  
+      attempt = true;
+    }
+      
   }
   return root;
 }
-//DONE
+
 void AVL::search_ID_Helper(Node* root, std::string ufid, bool& found){
   if (!root || found) {
     return;
@@ -136,7 +202,7 @@ void AVL::search_Name_Helper(Node* root, std::string name, bool& found){
   search_Name_Helper(root->left, name, found);
   search_Name_Helper(root->right, name, found);
 }
-//Traverses inorder and returns a vector of name strings DONE
+
 void AVL::traverseInorder(Node* root, vector<string>& names) {
   if (!root) {
     return;
@@ -145,7 +211,26 @@ void AVL::traverseInorder(Node* root, vector<string>& names) {
   names.push_back(root->name);
   traverseInorder(root->right, names);
 }
-//Traverses inorder and returns a vector of UFID strings DONE
+
+//oid AVL::inorder_Delete(Node* root, vector<string>& names, int n, bool& deleted, int& current) {
+// if(!root || deleted) { 
+//   return;
+// }
+// inorder_Delete(root->left, names, n, deleted, current);
+// if (deleted) return;
+// if (current == n) {
+//   names.push_back(root->name);
+//   string ufidDelete = root->ufid;
+//   deleted = remove_ID(ufidDelete);
+//   current++;
+//   return;
+// }
+// names.push_back(root->name);
+// current++;
+// inorder_Delete(root->right, names, n, deleted, current);
+// return;
+//
+
 void AVL::traverseInorderUFID(Node* root, vector<string>& names) {
   if (!root) {
     return;
@@ -154,7 +239,7 @@ void AVL::traverseInorderUFID(Node* root, vector<string>& names) {
   names.push_back(root->ufid);
   traverseInorderUFID(root->right, names);
 }
-//DONE
+
 vector<string> AVL::printInorder_Helper(Node* root){
   vector<string> names;
   traverseInorder(root, names);
@@ -180,7 +265,7 @@ vector<string> AVL::printInorder_UFID_Helper(Node* root) {
   cout << endl;
   return names;
 }
-//DONE
+
 void AVL::traversePreorder(Node* root, vector<string>& names) {
   if (!root) {
     return;
@@ -189,7 +274,7 @@ void AVL::traversePreorder(Node* root, vector<string>& names) {
   traversePreorder(root->left, names);
   traversePreorder(root->right, names);
 }
-//DONE
+
 vector<string> AVL::printPreorder_Helper(Node* root){
   vector<string> names;
   traversePreorder(root, names);
@@ -202,19 +287,28 @@ vector<string> AVL::printPreorder_Helper(Node* root){
   cout << endl;
   return names;
 }
-//DONE
+
 void AVL::traversePostorder(Node* root, vector<string>& names) {
   if (!root) {
     return;
   }
-  traversePreorder(root->left, names);
-  traversePreorder(root->right, names);
+  traversePostorder(root->left, names);
+  traversePostorder(root->right, names);
   names.push_back(root->name);
 }
-//DONE
+
+void AVL::traversePostorder_Delete(Node* root) {
+  if (!root) {
+    return;
+  }
+  traversePostorder_Delete(root->left);
+  traversePostorder_Delete(root->right);
+  delete root;
+}
+
 void AVL::printPostorder_Helper(Node* root){
   vector<string> names;
-  traversePreorder(root, names);
+  traversePostorder(root, names);
   for(size_t i = 0; i < names.size(); i++) {
     if (i > 0) {
       cout << ", ";
@@ -224,56 +318,15 @@ void AVL::printPostorder_Helper(Node* root){
   cout << endl;
 }
 
-void AVL::printLevelCount_Helper(Node* root)
+int AVL::printLevelCount_Helper(Node* root)
 {
-    printLevelCount_Helper(this->root);
+    if(!root) {
+      return 0;
+    }
+    return root->height;
 }
 
-void AVL::removeInorder_Helper(Node* root, int n){
-
-}
-//ROTATIONS
-//DONE
-AVL::Node* AVL::rotateLeft(Node* node){
-  Node* grandchild = node->right->left;
-  Node* newParent = node->right;
-  newParent->left = node;
-  node->right = grandchild;
-  return newParent;
-}
-//DONE
-AVL::Node* AVL::rotateRight(Node* node){
-  Node* grandchild = node->left->right;
-  Node* newParent = node->left;
-  newParent->right = node;
-  node->left = grandchild;
-  return newParent;
-}
-//DONE
-AVL::Node* AVL::rotateLeftRight(Node* node){
-  node->left = rotateLeft(node->left);
-  return rotateRight(node);
-}
-//DONE
-AVL::Node* AVL::rotateRightLeft(Node* node){
-  node->right = rotateRight(node->right);
-  return rotateLeft(node);
-}
-//DONE
-//MISCELLANEOUS FUNCTIONS AND HELPERS
-int AVL::height(Node* root) {
-  //base case
-  if(!root) {
-    return -1;
-  }
-  int leftHeight = height(root->left);
-  int rightHeight = height(root->right);
-
-  return max(leftHeight, rightHeight) + 1;
-}
-//FIX INORDER SUCCESSOR TRAVERSAL FOR GENERAL CASE
-AVL::Node* AVL::successor_Helper(AVL::Node* node) {
-  node = node->right;
+AVL::Node* AVL::successor_Helper(AVL::Node* node) { //FIX INORDER SUCCESSOR TRAVERSAL FOR GENERAL CASE
   while (node != nullptr && node->left != nullptr) {
     node = node->left;
   }
@@ -293,6 +346,25 @@ void AVL::search_ID_Insertion_Helper(AVL::Node* root, std::string ufid, bool& fo
     return;
   }
   search_ID_Helper(root->right, ufid, found);
+}
+
+string AVL::id_Location(AVL::Node* root, bool& deleted, int n, int& current) { //returns the ufid string at the nth location
+  if(!root) { 
+    return "";
+  }
+  string left = id_Location(root->left, deleted, n, current);
+  if(!left.empty()) {
+    return left;
+  }
+
+  if(current == n) {
+    current++;
+    return root->ufid;
+  }
+  current++;
+
+  string right = id_Location(root->right, deleted, n, current);
+  return right;
 }
 
 
@@ -344,13 +416,25 @@ void AVL::printPostorder(){
   AVL::printPostorder_Helper(this->root);
 }
 
-void AVL::printLevelCount(){
-  AVL::printLevelCount_Helper(this->root);
+int AVL::printLevelCount(){
+  return AVL::printLevelCount_Helper(this->root);
 }
 
-void AVL::removeInorder(int n){
-
+bool AVL::removeInorder(int n){
+  bool deleted = false;
+  string idFound;
+  int current = 0;
+  idFound = id_Location(root, deleted, n, current);
+  deleted = remove_ID(idFound);
+  return deleted;
 }
+
+
+
+
+
+
+
 
 //TODO
 //PRINT LEVEL COUNT

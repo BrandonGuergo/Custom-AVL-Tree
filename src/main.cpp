@@ -39,9 +39,16 @@ int main(void){
       tree.insert(name, ufid);
     }
     else if (command == "remove") {
+        bool removed = false;
         string ufid;
         iss >> ufid;
-        tree.remove_ID(ufid);
+        removed = tree.remove_ID(ufid);
+        if (removed) {
+          cout << "successful" << endl;
+        }
+        else {
+          cout << "unsuccessful" << endl;
+        }
     }
     else if (command == "search") {
       //Search by ID
@@ -76,9 +83,23 @@ int main(void){
       tree.printPostorder();
     }
     else if (command == "printLevelCount") {
-      tree.printLevelCount();
+      cout << tree.printLevelCount() << "\n";
     }
     else if (command == "removeInorder") {
+      string n;
+      bool deleted = false;
+      string extra;
+      iss >> ws;
+      if(!(iss >> n) || (iss >> extra) || n.empty() || !all_of(n.begin(), n.end(), ::isdigit)) {
+        cout << "unsuccessful" << endl;
+        continue;
+      }
+      int index = stoi(n);
+      deleted = tree.removeInorder(index);
+      if(deleted) { 
+        cout << "successful" << endl;
+      }
+      else { cout << "unsuccessful" << endl; }
     }
     else {
       cout << "Invalid command" << endl;
@@ -87,3 +108,5 @@ int main(void){
   
   return 0;
 }
+
+//printlevel count seg fault
